@@ -122,4 +122,11 @@ class DisinfectLog extends CActiveRecord
 												'disinfect_day' => $day_uninx_time
 				));
 	}
+	
+	public function defaultScope()
+	{
+		return array(
+				'condition'=>" hospital_id = ".Yii::app()->user->hospital_id,
+		);
+	}
 }

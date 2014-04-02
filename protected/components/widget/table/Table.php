@@ -64,7 +64,7 @@ class Table extends CGridView
 						echo '<td>'.$column->header.'</td>';
 						//echo '<td>' . trim($column->header)!=='' ? $column->header : $column->grid->blankDisplay . '</td>';
 					}
-				}elseif($column instanceof ButtonColumn) 
+				}elseif($column instanceof ButtonColumn || $column instanceof ButtonLinkColumn) 
 					echo '<td>'.$column->header.'</td>';
 			}
 			echo "</tr>\n";

@@ -47,9 +47,7 @@ class Category extends CActiveRecord
 	public function defaultScope()
 	{
 	    return array(
-            'alias' => 'c',
-            'condition' => "status='".self::STATUS_NORMAL."'",
-            'order' => "c.id DESC"
+            'condition' => $this->getTableAlias(false,false) . ".status='".self::STATUS_NORMAL."'",
 	    );
 	}
 
@@ -65,6 +63,7 @@ class Category extends CActiveRecord
 			array('hospital_id','default','value'=>Yii::app()->user->hospital_id),
 			array('name, create_time, hospital_id', 'required'),
 			array('name, create_time, hospital_id', 'length', 'max'=>20),
+			array('name', 'unique',  'message'=>'该分类已经存在了！'),
 			array('description', 'length', 'max'=>100),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
@@ -88,6 +87,16 @@ class Category extends CActiveRecord
 	        'qualityControlRecords' => array(self::HAS_MANY, 'QualityControlRecord', 'category_id'),
 	        'qualityControlResults' => array(self::HAS_MANY, 'QualityControlResult', 'category_id'),
 		);
+	}
+	
+	public function scopes()
+	{
+		return array(
+			'custom' => array(
+				'condition' => 'automatic ='.self::AUTOMATIC_NO
+			)
+		);
+		
 	}
 
 	/**

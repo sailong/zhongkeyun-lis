@@ -114,4 +114,76 @@ class QualityControlResult extends CActiveRecord
 	{
 		return parent::model($className);
 	}
+	
+	
+	//----------------------
+	/**
+	 * 获取质控数据
+	 * @param unknown_type $deviceId
+	 * @param unknown_type $channelId
+	 * @param unknown_type $codeId
+	 */
+	public function getQCResult($deviceId,$sampleCategoryId,$code,$date)
+	{
+		$dateArr = explode('-',$date);
+		$startTime = strtotime($date);
+		$endTime = mktime(0,0,0,$dateArr[1]+1,1,$dateArr[0]) - 1;
+		
+		//获取通道id
+		$channel = QualityControlChannel::model()->findByAttributes(array('device_id' => $deviceId, 'sample_category_id' => $sampleCategoryId));
+		if(!$channel) return;
+		$channelId = $channel->id;
+		$connection = Yii::app()->db;
+		$sql = "SELECT value,create_time FROM `quality_control_result`
+					WHERE
+						record_id
+					IN
+						(
+							SELECT id FROM `quality_control_record` WHERE
+								device_id = %s AND
+							    channel_id = %s AND
+								create_time >= %s AND
+								create_time < %s
+						)
+					AND
+						code = '%s' order by create_time asc
+				";
+		$sql = sprintf($sql,$deviceId,$channelId,$startTime,$endTime,$code);//echo $sql;
+		$command = $connection->createCommand($sql);
+		$result = $command->queryAll();
+		return $result;
+	}
+	
+	/**
+	 * 获取平均数
+	 */
+	public function getAverage($numberArr)
+	{
+		if(!$numberArr) return 0;
+		return round(array_sum($numberArr)/count($numberArr),3);
+	}
+	
+	/**
+	 * 获取标准差
+	 */
+	public function getSD($numberArr)
+	{
+		if(!$numberArr) return 0;
+		$x = $this->getAverage($numberArr);
+		$sum = 0;
+		foreach ($numberArr as $number)
+		{
+			$sum += pow(($number - $x),2);
+		}
+		$s = $sum/(count($numberArr) - 1);
+		return round(sqrt($s),3);
+	}
+	
+	public function getCV($s,$x)
+	{
+		if($x == 0) return 0;
+		$cv = $s / $x;
+		return round($cv,3);
+	}
+	
 }

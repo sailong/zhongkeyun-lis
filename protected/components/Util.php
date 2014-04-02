@@ -71,12 +71,16 @@ class Util
 
 	/**
 	 * 返回ajax请求数据
-	 * @param unknown_type $code
+	 * @param int|string $code
 	 * @param unknown_type $msg
 	 * @param unknown_type $returnData
 	 */
 	public static function returnAjax($code,$msg='',$returnData='')
 	{
+		if(!is_numeric($code))
+		{
+			echo $code;die;
+		}
 		$data['code']     = $code;
 		$data['msg']      = $msg;
 		$data['data']     = $returnData;

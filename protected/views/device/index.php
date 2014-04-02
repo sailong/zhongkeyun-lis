@@ -23,6 +23,7 @@ $this->widget('application.components.widget.table.Table', array(
 			'standard','remark',
 			array(
 				'class'=>'application.components.widget.table.ButtonColumn',
+				'update'=>false
 			)
 		)
 ));

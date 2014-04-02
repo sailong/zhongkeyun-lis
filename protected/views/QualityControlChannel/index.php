@@ -1,3 +1,4 @@
+<?php $this->widget('application.components.widget.Tips',array('name'=>'QualityControlChannel'));?>
 <form id="form1" runat="server" method="post" action="<?php echo $this->createUrl('SaveData');?>">
 <table width="100%" border="0" cellspacing="0" cellpadding="0" id="tab" class="table_box list_t_c">
   <tr>
@@ -11,7 +12,7 @@
   </tr>
   <tr class="bj_g">
   
-    <td width="10%">质控品ID</td>
+    <td width="10%">ID</td>
     <td width="20%">质控品</td>
     <td width="30%">通道</td>
   </tr>

@@ -55,6 +55,7 @@ class CustomTestResult extends CActiveRecord
 		return array(
 			'patient' => array(self::BELONGS_TO, 'Patient', 'patient_id'),
 			'record' => array(self::BELONGS_TO, 'PatientTestRecord', 'record_id'),
+			'parameter' => array(self::BELONGS_TO, 'CustomTestItem', 'parameter_id')
 		);
 	}
 

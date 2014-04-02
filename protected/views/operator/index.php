@@ -18,7 +18,7 @@ $this->widget('application.components.widget.table.Table', array(
 			),
 			array(
 				'header' => '权限组',
-				'value'  => '$data->role->item->description'
+				'value' => '!empty($data->role) ? substr($data->role->itemname, 0, strpos($data->role->itemname,"-")) : ""'
 			),
 			array(
 				'class'=>'application.components.widget.table.ButtonColumn',

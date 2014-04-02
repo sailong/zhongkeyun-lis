@@ -5,7 +5,7 @@
  *
  * The followings are the available columns in table 'quality_control_sample':
  * @property string $id
- * @property string $name
+ * @property string $category_id
  * @property string $number
  * @property string $hospital_id
  * @property string $expire_date
@@ -15,6 +15,7 @@
  *
  * The followings are the available model relations:
  * @property QualityControlChannel[] $qualityControlChannels
+ * @property QualityControlSampleCategory $category
  */
 class QualityControlSample extends CActiveRecord
 {
@@ -34,13 +35,12 @@ class QualityControlSample extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('name, number, hospital_id, expire_date, producer, create_time', 'required'),
-			array('name', 'length', 'max'=>5),
+			array('category_id, number, hospital_id, expire_date, producer, create_time', 'required'),
+			array('category_id, hospital_id, expire_date, create_time, alias', 'length', 'max'=>10),
 			array('number, producer', 'length', 'max'=>20),
-			array('hospital_id, expire_date, create_time, alias', 'length', 'max'=>10),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, name, number, hospital_id, expire_date, producer, create_time, alias', 'safe', 'on'=>'search'),
+			array('id, category_id, number, hospital_id, expire_date, producer, create_time, alias', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -53,6 +53,7 @@ class QualityControlSample extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'qualityControlChannels' => array(self::HAS_MANY, 'QualityControlChannel', 'sample_id'),
+			'category' => array(self::BELONGS_TO, 'QualityControlSampleCategory', 'category_id'),
 		);
 	}
 
@@ -63,7 +64,7 @@ class QualityControlSample extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'name' => '名称',
+			'category_id' => '名称',
 			'number' => '批号',
 			'hospital_id' => 'Hospital',
 			'expire_date' => '有效期',
@@ -92,7 +93,7 @@ class QualityControlSample extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id,true);
-		$criteria->compare('name',$this->name,true);
+		$criteria->compare('category_id',$this->category_id,true);
 		$criteria->compare('number',$this->number,true);
 		$criteria->compare('hospital_id',$this->hospital_id,true);
 		$criteria->compare('expire_date',$this->expire_date,true);
@@ -125,6 +126,29 @@ class QualityControlSample extends CActiveRecord
 			$this->create_time = time();
 		}
 		return true;
-		
+	}
+	/**
+	 * 判断是否唯一
+	 * @param int    $cate_id
+	 * @param string $number
+	 * @param string $producer
+	 * @param int    $id
+	 */
+	public function checkUnique($cate_id,$number,$producer,$id=0)
+	{
+		$data = $this->findByAttributes(array(
+											'category_id'=>$cate_id,
+											'number'=>$number,
+											'producer'=>$producer,
+											'hospital_id' => Yii::app()->user->hospital_id						
+				));
+		if(!$data) return false;
+		if($id)
+		{
+			if($id!=$data->id) return true;
+		}else 
+		{
+			return true;
+		}
 	}
 }

@@ -19,6 +19,8 @@ class ParameterController extends FrontController
 		if(isset($_GET['CustomTestItem']))
 			$model->attributes=$_GET['CustomTestItem'];
 		$this->render('index',array('model'=>$model));
+		
+		
 	}
 	
 	/**
@@ -26,6 +28,7 @@ class ParameterController extends FrontController
 	 */
 	public function actionCreate()
 	{
+		$model = new CustomTestItem();
 		if(isset($_POST['CustomTestItem']))
 		{
 			$model = new CustomTestItem();
@@ -35,12 +38,36 @@ class ParameterController extends FrontController
 				Yii::app()->user->setFlash('CustomTestItem','添加成功');
 				$this->redirect('index');
 			}else{
-				print_r($model->getErrors());
+				$error = array_values($model->getErrors());
+				Yii::app()->user->setFlash('CustomTestItem', $error[0][0]);
 			}
 		}
 		$categorys = Category::model()->findAll();
 		$this->registerValidateScript();
-		$this->render('create',array('categorys'=>$categorys));
+		$this->render('create',array('categorys'=>$categorys,'model'=>$model));
+	}
+	
+	/**
+	 * 编辑
+	 */
+	public function actionUpdate($id)
+	{
+		$model = $this->loadModel($id);
+		if(isset($_POST['CustomTestItem']))
+		{
+			$model->attributes = $_POST['CustomTestItem'];
+			if($model->save())
+			{
+				Yii::app()->user->setFlash('CustomTestItem','编辑成功');
+				$this->redirect('/parameter/index');
+			}else{
+				$error = array_values($model->getErrors());
+				Yii::app()->user->setFlash('CustomTestItem', $error[0][0]);
+			}
+		}
+		$categorys = Category::model()->findAll();
+		$this->registerValidateScript();
+		$this->render('update',array('categorys'=>$categorys, 'model'=>$model));
 	}
 	
 	/**

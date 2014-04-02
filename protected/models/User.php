@@ -25,6 +25,14 @@
 class User extends CActiveRecord
 {
 	/**
+	 * 性别 1女 2男
+	 * @var unknown
+	 */
+	const SEX_FEMAL = 1;
+	const SEX_MALE = 2;
+	
+	
+	/**
 	 * 用户状态 1正常 0已删除
 	 * @var unknown
 	 */
@@ -72,10 +80,16 @@ class User extends CActiveRecord
 			'patientTestRecords' => array(self::HAS_MANY, 'PatientTestRecord', 'operator_id'),
 			'hospital' => array(self::BELONGS_TO, 'Hospital', 'hospital_id'),
 			'department' => array(self::BELONGS_TO, 'Departments', 'department_id'),
-			'role' => array(self::HAS_ONE, 'AuthAssignment', 'userid', 'with'=>'item')
+			'role' => array(self::HAS_ONE, 'AuthAssignment', 'userid')
 		);
 	}
-
+	
+	public function defaultScope()
+	{
+		return array(
+			'condition' => $this->getTableAlias(false,false) . ".status='".self::STATUS_NORMAL."'",
+		);
+	}
 	/**
 	 * @return array customized attribute labels (name=>label)
 	 */
@@ -117,9 +131,11 @@ class User extends CActiveRecord
 		$criteria->compare('name',$this->name,true);
 		$criteria->compare('number',$this->number,true);
 		$criteria->compare('mobile',$this->mobile,true);
+		$criteria->compare('is_superuser', 0);
+		$criteria->with = 'role';
 		
 		// 关联角色表
-		$criteria->join = 'join authassignment as aa on aa.userid=id';
+		$criteria->join = 'left join authassignment as aa on aa.userid=id';
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -135,6 +151,20 @@ class User extends CActiveRecord
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
+	}
+	
+	
+	/**
+	 * 根据用户id获取用户角色
+	 * @param unknown $uid
+	 */
+	public function getRole($uid)
+	{
+		$sql = "SELECT * FROM authassignment as aa JOIN authitem as ai ON aa.itemname=ai.name AND aa.userid={$uid} AND ai.hospital_id={Yii:app->user->hospital_id}";
+		$data = Yii::app()->db->createCommand($sql)->queryAll($sql);
+		
+		
+		
 	}
 	
 	/**
@@ -154,7 +184,7 @@ class User extends CActiveRecord
 		{
 			$param['condition'] = ' id in ('.implode(',',$uidArr).')';
 		}
-		if($select) 
+		if($select)
 		{
 			array_push($select, 'id');
 			$select = array_unique($select);
@@ -175,24 +205,10 @@ class User extends CActiveRecord
 			}else
 			{
 				$tempData = $u->attributes;
-			}	
+			}
 			$userInfo[$u->id] = $tempData;
 		}
 		return $userInfo;
-	}
-	
-	
-	/**
-	 * 根据用户id获取用户角色
-	 * @param unknown $uid
-	 */
-	public function getRole($uid)
-	{
-		$data = AuthAssignment::model()->with('itemname')->findByAttributes(array('userid'=>$uid));
-		
-		
-		
-		
 	}
 	
 }

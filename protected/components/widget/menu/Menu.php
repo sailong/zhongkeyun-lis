@@ -70,7 +70,7 @@ class Menu extends CWidget
 				foreach ($menu['children'] as $child)
 				{
 					$current = explode('/', $child['id']);
-					if($current[0] == $this->currentControllerId && $current[1] == $this->currentActionId)
+					if($current[1] == $this->currentControllerId && $current[2] == $this->currentActionId)
 						$html .= PHP_EOL .'<li class="'.$this->currentClass.'"><a href="'.$child['id'].'" class="icon_'.$child['class'].'">'.$child['title'].'</a></li>';
 					else 
 						$html .= PHP_EOL . '<li><a href="'.$child['id'].'" class="icon_'.$child['class'].'">'.$child['title'].'</a></li>';

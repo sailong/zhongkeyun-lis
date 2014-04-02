@@ -22,6 +22,28 @@
  */
 class Patient extends CActiveRecord
 {
+	
+	/**
+	 * 年龄,数据库没有此字段
+	 * @var unknown
+	 */
+	public $age = NULL;
+	
+	/**
+	 * 性别 1女 2男
+	 * @var unknown
+	 */
+	const SEX_FEMAL = 1;
+	const SEX_MALE = 2;
+	
+	/**
+	 * 用户状态 1正常 0已删除
+	 * @var unknown
+	 */
+	const STATUS_DELETE = 0;
+	
+	const STATUS_NORMAL = 1;
+	
 	/**
 	 * @return string the associated database table name
 	 */
@@ -38,16 +60,19 @@ class Patient extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('name, sex, mobile, identity_card, social_security_card, birthday, extra, create_time', 'required'),
-			array('sex, status', 'numerical', 'integerOnly'=>true),
+			array('create_time','default','value'=>time()),
+			array('name, sex, mobile, identity_card, social_security_card, birthday', 'required'),
+			array('sex', 'numerical', 'integerOnly'=>true),
 			array('name, birthday, create_time', 'length', 'max'=>10),
 			array('mobile', 'length', 'max'=>11),
+			array('identity_card', 'unique'),
+			array('social_security_card', 'unique'),
 			array('identity_card', 'length', 'max'=>18),
 			array('social_security_card', 'length', 'max'=>30),
 			array('extra', 'length', 'max'=>255),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, name, sex, mobile, identity_card, social_security_card, birthday, status, extra, create_time', 'safe', 'on'=>'search'),
+			array('name, sex, mobile, identity_card, social_security_card, birthday, address, extra, create_time', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -65,22 +90,30 @@ class Patient extends CActiveRecord
 		);
 	}
 
+	public function defaultScope()
+	{
+		return array(
+			'condition' => $this->getTableAlias(false,false).".status='".self::STATUS_NORMAL."'",
+		);
+	}
 	/**
 	 * @return array customized attribute labels (name=>label)
 	 */
 	public function attributeLabels()
 	{
 		return array(
-			'id' => 'ID',
-			'name' => 'Name',
-			'sex' => 'Sex',
-			'mobile' => 'Mobile',
-			'identity_card' => 'Identity Card',
-			'social_security_card' => 'Social Security Card',
-			'birthday' => 'Birthday',
+			'id' => '序号',
+			'name' => '姓名',
+			'sex' => '性别',
+			'birthday' => '出生日期',
+			'mobile' => '手机号码',
+			'identity_card' => '身份证',
+			'social_security_card' => '社保卡',
 			'status' => 'Status',
 			'extra' => 'Extra',
 			'create_time' => 'Create Time',
+			'address' => '地址'
+			
 		);
 	}
 
@@ -112,7 +145,9 @@ class Patient extends CActiveRecord
 		$criteria->compare('status',$this->status);
 		$criteria->compare('extra',$this->extra,true);
 		$criteria->compare('create_time',$this->create_time,true);
-
+		
+		$criteria->order = 'id desc';
+		
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 		));

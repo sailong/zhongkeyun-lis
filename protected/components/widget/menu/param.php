@@ -9,17 +9,12 @@ return array(
 			array(
 				'title' => '项目检测',
 				'class' => 'l1',
-				'id' => '/site/test'
+				'id' => '/record/create'
 			),
 			array(
 				'title' => '报告单记录',
 				'class' => 'l2',
-				'id' => '/controllerId/actionId'
-			),
-			array(
-				'title' => '自定义报告单',
-				'class' => 'l4',
-				'id' => '/controllerId/actionId'
+				'id' => '/record/index'
 			),
 		)
 	),
@@ -44,22 +39,22 @@ return array(
 			array(
 				'title' => '质控项目',
 				'class' => 'l6',
-				'id' => '/controllerId/actionId'
+				'id' => '/qualityControlLog/index'
 			),
 			array(
 				'title' => '质控品',
 				'class' => 'l7',
-				'id' => '/QualityControlSample/index'
+				'id' => '/qualityControlSample/index'
 			),
 			array(
 				'title' => '绘制质控图',
 				'class' => 'l13',
-				'id' => '/controllerId/actionId'
+				'id' => '/qualityControlChart/index'
 			),
 			array(
 				'title' => '通道设置',
 				'class' => 'l4',
-				'id' => '/QualityControlChannel/index'
+				'id' => '/qualityControlChannel/index'
 			),
 		)
 	),
@@ -84,7 +79,7 @@ return array(
 			array(
 				'title' => '紫外线消毒统计',
 				'class' => 'l11',
-				'id' => '/disinfect'
+				'id' => '/disinfect/index'
 			),
 		)
 	),
@@ -104,7 +99,7 @@ return array(
 			array(
 				'title' => '患者列表',
 				'class' => 'l12',
-				'id' => '/controllerId/actionId'
+				'id' => '/patient/index'
 			),
 		)
 	),

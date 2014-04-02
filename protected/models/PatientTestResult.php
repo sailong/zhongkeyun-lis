@@ -53,6 +53,7 @@ class PatientTestResult extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'record' => array(self::BELONGS_TO, 'PatientTestRecord', 'record_id'),
+			'parameter' => array(self::BELONGS_TO, 'CustomTestItem', array('device_id'=>'device_id','code'=>'code'))
 		);
 	}
 

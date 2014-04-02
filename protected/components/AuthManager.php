@@ -137,7 +137,7 @@ class AuthManager extends CAuthManager
 			->from($this->itemTable)
 			->where('name=:name1 OR name=:name2', array(
 				':name1'=>$itemName,
-				':name2'=>$childName
+				':name2'=>$childName,
 			))
 			->queryAll();
 
@@ -170,6 +170,74 @@ class AuthManager extends CAuthManager
 			throw new CException(Yii::t('yii','Either "{parent}" or "{child}" does not exist.',array('{child}'=>$childName,'{parent}'=>$itemName)));
 	}
 
+// 	/**
+// 	 * 给角色添加child
+// 	 * @param unknown $parentName
+// 	 * @param unknown $childName
+// 	 */
+// 	public function addRoleChild($parentName,$childName)
+// 	{
+// 		if($parentName===$childName)
+// 			throw new CException(Yii::t('yii','Cannot add "{name}" as a child of itself.',
+// 					array('{name}'=>$parentName)));
+		
+// 		$rows=$this->db->createCommand()
+// 			->select()
+// 			->from($this->itemTable)
+// 			->where('name=:name1 AND hospital_id=:hospital_id', array(
+// 				':name1'=>$parentName,
+// 				':hospital_id'=>Yii::app()->user->id
+// 				))
+// 			->queryAll();
+			
+// 		$rows2 = $this->db->createCommand()
+// 			->select()->from($this->itemTable)
+// 			->where('name=:name1', array(
+// 				':name1'=>$childName
+// 			))
+// 			->queryAll();
+// 		if(count($rows) == 1 && count($rows2) == 1)
+// 		{
+// 			$this->db->createCommand()
+// 				->insert($this->itemChildTable, array(
+// 					'parent'=>$parentName,
+// 					'child'=>$childName,
+// 					'hospital_id'=>Yii::app()->user->hospital_id
+// 				));
+// 			return true;
+// 		}else
+// 			throw new CException(Yii::t('yii','Either "{parent}" or "{child}" does not exist.',array('{child}'=>$childName,'{parent}'=>$parentName)));
+			
+// 	}
+	
+	/**
+	 * 删除角色
+	 * @param unknown $role
+	 */
+// 	public function removeRole($role)
+// 	{
+// 		if($this->usingSqlite())
+// 		{
+// 			$this->db->createCommand()
+// 			->delete($this->itemChildTable, '(parent=:name1 OR child=:name2) AND hospital_id=:hospital_id', array(
+// 					':name1'=>$role,
+// 					':name2'=>$role,
+// 					':hospital_id'=>Yii::app()->user->hospital_id
+// 			));
+// 			$this->db->createCommand()
+// 			->delete($this->assignmentTable, 'itemname=:name AND hospital_id=:hospital_id', array(
+// 					':name'=>$role,
+// 					':hospital_id'=>Yii::app()->user->hospital_id
+// 			));
+// 		}
+		
+// 		return $this->db->createCommand()
+// 		->delete($this->itemTable, 'name=:name AND hospital_id=:hospital_id', array(
+// 				':name'=>$role,
+// 				':hospital_id'=>Yii::app()->user->hospital_id
+// 		)) > 0;
+		
+// 	}
 	/**
 	 * Removes a child from its parent.
 	 * Note, the child item is not deleted. Only the parent-child relationship is removed.
@@ -259,7 +327,7 @@ class AuthManager extends CAuthManager
 				'itemname'=>$itemName,
 				'userid'=>$userId,
 				'bizrule'=>$bizRule,
-				'data'=>serialize($data)
+				'data'=>serialize($data),
 			));
 		return new CAuthAssignment($this,$itemName,$userId,$bizRule,$data);
 	}
@@ -501,8 +569,11 @@ class AuthManager extends CAuthManager
 	 */
 	public function saveAuthItem($item,$oldName=null)
 	{
-		if($this->usingSqlite() && $oldName!==null && $item->getName()!==$oldName)
+		
+		
+		if($oldName!==null && $item->getName()!==$oldName)
 		{
+
 			$this->db->createCommand()
 				->update($this->itemChildTable, array(
 					'parent'=>$item->getName(),
@@ -522,7 +593,7 @@ class AuthManager extends CAuthManager
 					':whereName'=>$oldName,
 				));
 		}
-
+		
 		$this->db->createCommand()
 			->update($this->itemTable, array(
 				'name'=>$item->getName(),
@@ -619,7 +690,6 @@ class AuthManager extends CAuthManager
 				'description'=>$description,
 				'bizrule'=>$bizRule,
 				'data'=>serialize($data),
-				'remark'=>$remark,
 				'hospital_id'=>Yii::app()->user->hospital_id
 		));
 		return new CAuthItem($this,$name,CAuthItem::TYPE_ROLE,$description,$bizRule,$data);

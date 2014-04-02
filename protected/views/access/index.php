@@ -11,9 +11,12 @@ $this->widget('application.components.widget.table.Table', array(
 			'class'=>'application.components.widget.Page'
 		),
 		'columns' => array(
-			'description','remark',
+			array('name'=>'name','value'=>'substr($data->name, 0, strpos($data->name,"-"))'),
+			'description',
 			array(
 				'class'=>'application.components.widget.table.ButtonColumn',
+				//'updateButtonUrl' => 'Yii::app()->controller->createUrl("update",array("id"=>$data->name))',
+				//'deleteButtonUrl' => 'Yii::app()->controller->createUrl("delete",array("id"=>$data->name))'
 			)
 		)
 ));

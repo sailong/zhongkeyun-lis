@@ -44,7 +44,7 @@
 						if(!empty($roles))
 							foreach ($roles as $role):
 					?>
-							<option value="<?php echo $role->name; ?>"><?php echo $role->description;?></option>
+							<option value="<?php echo $role->name; ?>"><?php echo substr($role->name, 0, strpos($role->name,"-")); ?></option>
 					<?php endforeach;?>
 					</select>
 				</td>

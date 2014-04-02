@@ -39,7 +39,8 @@ class DeviceController extends FrontController
     			Yii::app()->user->setFlash('device','创建成功');
     			$this->redirect('index');
     		}else{
-    			print_r($model->getErrors());
+    			$error = array_values($model->getErrors());
+				Yii::app()->user->setFlash('device', $error[0][0]);
     		}
 		}
 		$categorys = Category::model()->findAll();

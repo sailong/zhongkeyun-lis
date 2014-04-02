@@ -1,3 +1,4 @@
+<?php $this->widget('application.components.widget.Tips',array('name'=>$this->modelName));?>
 <?php 
 	CHtml::$afterRequiredLabel = '';
 	$form=$this->beginWidget('CActiveForm',array(
@@ -17,9 +18,9 @@ echo $form->hiddenField($model,'id');
 ?>
 <table width="100%" border="0" cellpadding="0" cellspacing="0" class="table_c4">
   <tr>
-    <td width="70"><?php echo $form->labelEx($model,'name'); ?>：</td>
+    <td width="70"><?php echo $form->labelEx($model,'category_id'); ?>：</td>
     <td>
-    	<?php echo $form->textField($model,'name',array('class'=>'validate[required] text-input')); ?>
+    	<?php echo $form->dropDownList($model,'category_id',$sampleCategory,array('class'=>'validate[required]')); ?>
     </td>
   </tr>
   
@@ -42,7 +43,7 @@ echo $form->hiddenField($model,'id');
   
   <tr>
     <td width="70"><?php echo $form->labelEx($model,'producer'); ?>：</td>
-    <td><?php echo $form->textArea($model,'producer',array('cols'=>'45','rows'=>5)); ?></td>
+    <td><?php echo $form->textField($model,'producer',array('class'=>'validate[required] text-input','maxlength'=>20)); ?></td>
   </tr>
  
   <tr>
@@ -52,7 +53,6 @@ echo $form->hiddenField($model,'id');
     <td colspan="2">&nbsp;</td>
   </tr>
   </table>
-</form>
 <?php $this->endWidget(); ?>
 <script src="/js/My97DatePicker/WdatePicker.js"></script>
 <script>

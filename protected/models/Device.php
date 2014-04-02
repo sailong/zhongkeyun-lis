@@ -51,12 +51,9 @@ class Device extends CActiveRecord
 	
 	public function defaultScope()
 	{
-	    $alias = $this->getTableAlias(false,false);//$this->getTableAlias(false,false);$this->modelName;
-	     
 	    return array(
-	            'alias' => $alias,
-	            'condition' => "status='".self::STATUS_NORMAL."'",
-	            'order' => "`$alias`.id DESC"
+            'condition' =>  $this->getTableAlias(false,false) . ".status='".self::STATUS_NORMAL."'",
+            'order' => $this->getTableAlias(false,false) . ".id DESC"
 	    );
 	}
 
@@ -72,14 +69,34 @@ class Device extends CActiveRecord
 			array('hospital_id','default','value'=>Yii::app()->user->hospital_id),
 			array('name, number, category_id, producer, production_date, release_date, standard, create_time, hospital_id', 'required'),//interface,
 			array('name, number, producer, standard', 'length', 'max'=>20),
-			array('category_id, production_date, release_date, create_time, interface, hospital_id', 'length', 'max'=>10),
+			array('number', 'checkExist', 'message'=>'该设备型号已存在'),
+			array('production_date', 'compare', 'compareValue' => strtotime(date('Y-m-d',time())), 'operator'=>'<', 'message'=>'生产日期需小于当前日期'),
+			array('release_date', 'compare', 'compareAttribute' => 'production_date', 'operator'=>'>', 'message' => '出厂日期应大于生产日期'),
 			array('remark', 'length', 'max'=>100),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, name, number, category_id, producer, production_date, release_date, standard, remark, create_time, hospital_id', 'safe'),//interface,
+			array('name, number, category_id, producer, production_date, release_date, standard, remark, create_time, hospital_id', 'safe'),//interface,
 		);
 	}
 
+	/**
+	 * 检测设备编号是否已经存在
+	 * @param unknown $attribute
+	 * @param unknown $param
+	 * @return boolean
+	 */
+	public function checkExist($attribute, $param)
+	{
+		$all = $this->findAllByAttributes(array($attribute=>$this->{$attribute},'hospital_id'=>Yii::app()->user->hospital_id));
+		$total = count($all);
+		if($total == 0)
+			return true;
+		elseif(!$this->isNewRecord && ($total == 1) && ($all[0]->id == $this->id))
+		return true;
+		else
+			$this->addError($attribute, $param['message']);
+		
+	}
 	/**
 	 * @return array relational rules.
 	 */
@@ -156,59 +173,4 @@ class Device extends CActiveRecord
 		return parent::model($className);
 	}
 	
-	/**
-	 * 批量获取设备统计数据
-	 * @param array $device_id_arr
-	 */
-	public function getDeviceList($device_id_arr,$select=array(),$returnType='object',$byIdRank=false)
-	{
-	    if(empty($device_id_arr) || !is_array($device_id_arr)) return;
-	    $device_id_arr = array_unique($device_id_arr);
-	    if(count($device_id_arr) == 1)
-	    {
-	        $param['condition'] = ' id = '.$device_id_arr[0];
-	    }else
-	    {
-	        $param['condition'] = ' id in ('.implode(',',$device_id_arr).')';
-	    }
-	    //$param['condition'].=' AND `from` = 1';
-	    $select[] = 'id';
-	    $param['select'] = implode(',', $select);
-	    $result = $this->findAll($param);
-	    if(!$result) return;
-	    if($byIdRank)
-	    {
-	        /* //判断是否有头像
-	         $hasAvatar = in_array('avatar', $select) ? true : false;
-	        //整理顺序
-	        $obj = new stdClass();
-	        foreach ($result as $val)
-	        {
-	        $id = $val->id;
-	        if($hasAvatar) $val->avatar = $this->getAvatar($val->avatar,$val->id);
-	        $obj->$id = $val;
-	        }
-	        $result = new stdClass();
-	        foreach ($uidArr as $id)
-	        {
-	        $result->$id = $obj->$id;
-	        } */
-	
-	    }
-	    if($returnType=='object')
-	    {
-	        return $result;
-	    }else
-	    {
-	        $data = array();
-	        foreach($result as $u)
-	        {
-	            foreach ($this->attributes as $key=>$val)
-	            {
-	                if(in_array($key, $select))   $data[$u->id][$key] = $key=='avatar' ? $this->getAvatar($u->avatar,$u->id)  :$u->$key;
-	            }
-	        }
-	        return $data;
-	    }
-	}
 }

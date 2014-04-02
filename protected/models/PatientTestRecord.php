@@ -35,6 +35,15 @@
  */
 class PatientTestRecord extends CActiveRecord
 {
+	
+	/**
+	 * 是否打印0 未打印 1打印
+	 * @var unknown
+	 */
+	const PRINT_NO = 0;
+	const PRINT_YES = 1;
+	
+	
 	/**
 	 * @return string the associated database table name
 	 */
@@ -51,14 +60,16 @@ class PatientTestRecord extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('patient_id, hospital_id, department_id, sample, doctor_id, diagnoses, test_item, device_id, remark, bed_no, operator_id, checker_id, sample_time, test_time, reporting_time, create_time', 'required'),
+			array('create_time','default','value'=>time()),
+			array('hospital_id','default','value'=>Yii::app()->user->hospital_id),
+			array('patient_id, hospital_id,department_id, sample, doctor_id, diagnoses, test_item, device_id, operator_id, checker_id, sample_time, test_time, reporting_time, create_time', 'required'),
 			array('print, print_time', 'numerical', 'integerOnly'=>true),
 			array('patient_id, hospital_id, department_id, doctor_id, test_item, device_id, bed_no, operator_id, checker_id, sample_time, test_time, reporting_time, patient_age, create_time', 'length', 'max'=>10),
 			array('sample', 'length', 'max'=>20),
 			array('diagnoses, remark', 'length', 'max'=>50),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, patient_id, hospital_id, department_id, sample, doctor_id, diagnoses, test_item, device_id, remark, bed_no, operator_id, checker_id, sample_time, test_time, reporting_time, patient_age, print, print_time, create_time', 'safe', 'on'=>'search'),
+			array('id, patient_id, category_id, hospital_id, department_id, sample, doctor_id, diagnoses, test_item, device_id, remark, bed_no, operator_id, checker_id, sample_time, test_time, reporting_time, patient_age, print, print_time, create_time', 'safe'),
 		);
 	}
 
@@ -75,6 +86,9 @@ class PatientTestRecord extends CActiveRecord
 			'operator' => array(self::BELONGS_TO, 'User', 'operator_id'),
 			'doctor' => array(self::BELONGS_TO, 'Doctor', 'doctor_id'),
 			'device' => array(self::BELONGS_TO, 'Device', 'device_id'),
+			'checker' => array(self::BELONGS_TO, 'User', 'checker_id'),
+			'department'=>array(self::BELONGS_TO, 'Departments','department_id'),
+			'category'=>array(self::BELONGS_TO, 'Category', 'category_id'),
 			'patientTestResults' => array(self::HAS_MANY, 'PatientTestResult', 'record_id'),
 		);
 	}
@@ -86,22 +100,22 @@ class PatientTestRecord extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'patient_id' => 'Patient',
+			'patient_id' => '病人id',
 			'hospital_id' => 'Hospital',
 			'department_id' => 'Department',
 			'sample' => 'Sample',
 			'doctor_id' => 'Doctor',
-			'diagnoses' => 'Diagnoses',
+			'diagnoses' => '临床诊断',
 			'test_item' => 'Test Item',
 			'device_id' => 'Device',
-			'remark' => 'Remark',
-			'bed_no' => 'Bed No',
+			'remark' => '备注',
+			'bed_no' => '床号',
 			'operator_id' => 'Operator',
 			'checker_id' => 'Checker',
 			'sample_time' => 'Sample Time',
 			'test_time' => 'Test Time',
 			'reporting_time' => 'Reporting Time',
-			'patient_age' => 'Patient Age',
+			'patient_age' => '年龄',
 			'print' => 'Print',
 			'print_time' => 'Print Time',
 			'create_time' => 'Create Time',
@@ -126,26 +140,12 @@ class PatientTestRecord extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('id',$this->id,true);
-		$criteria->compare('patient_id',$this->patient_id,true);
-		$criteria->compare('hospital_id',$this->hospital_id,true);
-		$criteria->compare('department_id',$this->department_id,true);
 		$criteria->compare('sample',$this->sample,true);
-		$criteria->compare('doctor_id',$this->doctor_id,true);
 		$criteria->compare('diagnoses',$this->diagnoses,true);
 		$criteria->compare('test_item',$this->test_item,true);
-		$criteria->compare('device_id',$this->device_id,true);
 		$criteria->compare('remark',$this->remark,true);
-		$criteria->compare('bed_no',$this->bed_no,true);
-		$criteria->compare('operator_id',$this->operator_id,true);
-		$criteria->compare('checker_id',$this->checker_id,true);
-		$criteria->compare('sample_time',$this->sample_time,true);
-		$criteria->compare('test_time',$this->test_time,true);
-		$criteria->compare('reporting_time',$this->reporting_time,true);
-		$criteria->compare('patient_age',$this->patient_age,true);
-		$criteria->compare('print',$this->print);
-		$criteria->compare('print_time',$this->print_time);
-		$criteria->compare('create_time',$this->create_time,true);
+		
+		$criteria->with = array('patient','doctor','operator','checker');
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

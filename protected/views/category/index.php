@@ -14,6 +14,7 @@ $this->widget('application.components.widget.table.Table', array(
 			'id','name','description',
 			array(
 				'class'=>'application.components.widget.table.ButtonColumn',
+				'update'=>false
 			)
 		)
 ));

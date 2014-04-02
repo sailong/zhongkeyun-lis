@@ -19,11 +19,10 @@ class DisinfectController extends FrontController
 		$data = $userData = array();
 		$dataProvider = new CActiveDataProvider('DisinfectLog', array(
 				'criteria'=>array(
-						'condition' => ' hospital_id = '.Yii::app()->user->hospital_id,
 						'order'=>'id DESC',
 				),
 				'pagination'=>array(
-						'pageSize'=>1,
+						'pageSize'=>10,
 				),
 		));
 		//获取用户名

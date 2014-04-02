@@ -33,15 +33,27 @@ class Authitem extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('name, description', 'required'),
+			array('name', 'required'),
 			//array('name', 'regularExpression', 'pattern'=>'[a-zA-z]'),
 			array('name', 'length', 'max'=>64),
-			array('name','unique'),
-			array('description, bizrule, data', 'safe'),
+			array('name','checkExist', 'message'=>'已经存在了'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('name, type, description, bizrule, data,remark,hospital_id', 'safe', 'on'=>'search'),
+			array('name, type, description, bizrule, data,remark,hospital_id', 'safe'),
 		);
+	}
+	
+	public function checkExist($attribute, $param)
+	{
+		$value = $this->{$attribute} . '-' . Yii::app()->user->hospital_id;
+		$all = $this->findAllByAttributes(array($attribute=>$value));
+		$total = count($all);
+		if($total == 0)
+			return true;
+		elseif(!$this->isNewRecord && ($total == 1))
+			return true;
+		else
+			$this->addError($attribute, $param['message']);
 	}
 
 	/**
@@ -74,12 +86,11 @@ class Authitem extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'name' => 'Name',
+			'name' => '名称',
 			'type' => 'Type',
-			'description' => '名称',
+			'description' => '描述',
 			'bizrule' => 'Bizrule',
 			'data' => 'Data',
-			'remark'=>'备注'
 		);
 	}
 
@@ -100,9 +111,7 @@ class Authitem extends CActiveRecord
 		// @todo Please modify the following code to remove attributes that should not be searched.
 
 		$criteria=new CDbCriteria;
-
-		$criteria->compare('name',$this->name,true);
-		$criteria->compare('description',$this->description,true);
+		$criteria->compare('name',$this->name . '-' . Yii::app()->user->hospital_id,true);
 
 		$criteria->scopes = 'roles';
 		return new CActiveDataProvider($this, array(
@@ -127,12 +136,12 @@ class Authitem extends CActiveRecord
 	 */
 	public function createRoles($param=array())
 	{
-		
 		$auth=Yii::app()->authManager;
-		$role = $auth->createRole($param['name'],$param['description'],NULL,NULL,$param['remark']);
+		$role = $auth->createRole($param['name'] .'-'. Yii::app()->user->hospital_id,$param['description']);
 		foreach ($param['access'] as $access)
 		{
 			$role->addChild($access);
+			//$auth->addChild($role->name, $access);
 		}
 		return true;
 	}

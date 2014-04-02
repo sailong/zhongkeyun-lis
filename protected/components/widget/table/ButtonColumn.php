@@ -30,7 +30,7 @@ class ButtonColumn extends CGridColumn
 	 * @var string the label for the update button. Defaults to "Update".
 	 * Note that the label will not be HTML-encoded when rendering.
 	 */
-	public $updateButtonLabel;
+	public $updateButtonLabel = '';
 	/**
 	 * @var string the image URL for the update button. If not set, an integrated image will be used.
 	 * You may set this property to be false to render a text link instead.
@@ -54,12 +54,12 @@ class ButtonColumn extends CGridColumn
 	 * @var array the HTML options for the update button tag.
 	 */
 	public $updateButtonOptions=array('class'=>'bu_bj');
-
+	
 	/**
 	 * @var string the label for the delete button. Defaults to "Delete".
 	 * Note that the label will not be HTML-encoded when rendering.
 	 */
-	public $deleteButtonLabel;
+	public $deleteButtonLabel = '';
 	/**
 	 * @var string the image URL for the delete button. If not set, an integrated image will be used.
 	 * You may set this property to be false to render a text link instead.
@@ -87,34 +87,16 @@ class ButtonColumn extends CGridColumn
 	 * @var string the confirmation message to be displayed when delete button is clicked.
 	 * By setting this property to be false, no confirmation message will be displayed.
 	 * This property is used only if <code>$this->buttons['delete']['click']</code> is not set.
-	 */
+	*/
 	public $deleteConfirmation;
-	/**
-	 * @var string a javascript function that will be invoked after the delete ajax call.
-	 * This property is used only if <code>$this->buttons['delete']['click']</code> is not set.
-	 *
-	 * The function signature is <code>function(link, success, data)</code>
-	 * <ul>
-	 * <li><code>link</code> references the delete link.</li>
-	 * <li><code>success</code> status of the ajax call, true if the ajax call was successful, false if the ajax call failed.
-	 * <li><code>data</code> the data returned by the server in case of a successful call or XHR object in case of error.
-	 * </ul>
-	 * Note that if success is true it does not mean that the delete was successful, it only means that the ajax call was successful.
-	 *
-	 * Example:
-	 * <pre>
-	 *  array(
-	 *     class'=>'CButtonColumn',
-	 *     'afterDelete'=>'function(link,success,data){ if(success) alert("Delete completed successfuly"); }',
-	 *  ),
-	 * </pre>
-	 */
-	public $afterDelete;
+	
+	
 	/**
 	 * @var array the configuration for buttons. Each array element specifies a single button
 	 * which has the following format:
 	 * <pre>
 	 * 'buttonID' => array(
+	 * 	   'delete'=>false,		// 是否是删除按钮
 	 *     'label'=>'...',     // text label of the button
 	 *     'url'=>'...',       // a PHP expression for generating the URL of the button
 	 *     'imageUrl'=>'...',  // image URL of the button. If not set or false, a text link is used
@@ -138,20 +120,19 @@ class ButtonColumn extends CGridColumn
 	 */
 	public $buttons=array();
 	
-	
 	/**
-	 * 是否显示编辑按钮
+	 * 是否显示更新
 	 * @var unknown
 	 */
-	public $update = false;
-	
+	public $update = true;
 	
 	/**
-	 * 是否显示删除按钮
+	 * 是否显示删除
 	 * @var unknown
 	 */
 	public $delete = true;
-
+	
+	
 	/**
 	 * Initializes the column.
 	 * This method registers necessary client script for the button column.
@@ -160,9 +141,9 @@ class ButtonColumn extends CGridColumn
 	{
 		$this->htmlOptions['class'] = '';
 		$this->header = '操作';
-		$this->updateButtonLabel = '';
-		$this->deleteButtonLabel = '';
-		$this->registerClientScript();
+		
+		if($this->delete)
+			$this->registerClientScript();
 	}
 
 	/**
@@ -182,6 +163,8 @@ jQuery(document).on('click','#{$this->grid->id} a.{$this->deleteButtonOptions['c
 				alert(data.message);
 		},'json');
 		return false;
+	}else{
+		return false;	
 	}
 		
 });	
@@ -196,27 +179,58 @@ EOF;
 	 */
 	protected function renderDataCellContent($row,$data)
 	{
+		$tr=array();
+		ob_start();
+		foreach($this->buttons as $id => $button)
+		{
+			$this->renderButton($id,$button,$row,$data);
+			$tr[]=ob_get_contents();
+			ob_clean();
+		}
+		ob_end_clean();
+		echo join('', $tr);
+		
 		if($this->update)
 			$this->renderUpdate($data, $row);
-		$this->renderDelete($data, $row);
+		if($this->delete)
+			$this->renderDelete($data, $row);
 	}
 	
+	
 	/**
-	 * 显示更新按钮
+	 * Renders a link button.
+	 * @param string $id the ID of the button
+	 * @param array $button the button configuration which may contain 'label', 'url', 'imageUrl' and 'options' elements.
+	 * See {@link buttons} for more details.
+	 * @param integer $row the row number (zero-based)
+	 * @param mixed $data the data object associated with the row
 	 */
-	protected function renderUpdate($data, $row)
+	protected function renderButton($id,$button,$row,$data)
 	{
-		$url = $this->evaluateExpression($this->updateButtonUrl,array('data'=>$data, 'row'=>$row));
-		echo CHtml::link($this->updateButtonLabel, $url, $this->updateButtonOptions);
+		if (isset($button['visible']) && !$this->evaluateExpression($button['visible'],array('row'=>$row,'data'=>$data)))
+			return;
+		$label=isset($button['label']) ? $button['label'] : $id;
+		$url=isset($button['url']) ? $this->evaluateExpression($button['url'],array('data'=>$data,'row'=>$row)) : '#';
+		$options=isset($button['options']) ? $button['options'] : array();
+		if(!isset($options['title']))
+			$options['title']=$label;
+		if(isset($button['imageUrl']) && is_string($button['imageUrl']))
+			echo CHtml::link(CHtml::image($button['imageUrl'],$label),$url,$options);
+		else
+			echo CHtml::link($label,$url,$options);
 	}
 	
-	/**
-	 * 显示删除
-	 */
+	
 	protected function renderDelete($data, $row)
 	{
 		$url=$this->evaluateExpression($this->deleteButtonUrl,array('data'=>$data,'row'=>$row));
 		echo CHtml::link($this->deleteButtonLabel,$url,$this->deleteButtonOptions);
 	}
 	
+	protected function renderUpdate($data, $row)
+	{
+		$url=$this->evaluateExpression($this->updateButtonUrl,array('data'=>$data,'row'=>$row));
+		echo CHtml::link($this->updateButtonLabel,$url,$this->updateButtonOptions);
+	}
+
 }

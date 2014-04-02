@@ -29,7 +29,8 @@ class CategoryController extends FrontController
     			Yii::app()->user->setFlash('category','添加成功');
     			$this->redirect('index');
     		}else{
-    			print_r($model->getErrors());
+    			$error = array_values($model->getErrors());
+				Yii::app()->user->setFlash('category', $error[0][0]);
     		}
     	}
     	
@@ -45,6 +46,8 @@ class CategoryController extends FrontController
     	$model = $this->loadModel($id);
     	$model->status = Category::STATUS_DELETE;
     	$model->update(array('status'));
+    	// 删除分类下的自定义参数
+    	CustomTestItem::model()->updateAll(array('status'=>CustomTestItem::STATUS_DELETE),array('condition'=>"category_id=$model->id"));
     	echo CJSON::encode(array('status'=>1,'msg'=>'删除成功'));
     }
     

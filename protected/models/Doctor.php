@@ -21,6 +21,23 @@
  */
 class Doctor extends CActiveRecord
 {
+	
+	/**
+	 * 性别 1女 2男
+	 * @var unknown
+	 */
+	const SEX_FEMAL = 1;
+	const SEX_MALE = 2;
+	
+	/**
+	 * 用户状态 1正常 0已删除
+	 * @var unknown
+	 */
+	const STATUS_DELETE = 0;
+	
+	const STATUS_NORMAL = 1;
+	
+	
 	/**
 	 * @return string the associated database table name
 	 */
@@ -47,7 +64,14 @@ class Doctor extends CActiveRecord
 			array('id, name, departments_id, hospital_id, mobile, sex, number, identity_card, create_time', 'safe', 'on'=>'search'),
 		);
 	}
-
+	
+	
+	public function defaultScope()
+	{
+		return array(
+			'condition' => $this->getTableAlias(false,false) . ".status='".self::STATUS_NORMAL."'",
+		);
+	}
 	/**
 	 * @return array relational rules.
 	 */

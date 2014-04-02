@@ -15,6 +15,34 @@
 class RecordPrintLog extends CActiveRecord
 {
 	/**
+	 * 日志记录类型,1是病人检测结果打印2质控打印
+	 * @var unknown
+	 */
+	const TYPE_PATIENT_TEST_RECORD = 1;
+	const TYPE_CONTROL_TEST_RECORD = 2;
+	
+	
+	/**
+	 * 打印进行状态0开始打印不知道能否打印成功 1 打印完成
+	 * @var unknown
+	 */
+	const PRINT_STATUS_BEGIN = 0;
+	const PRINT_STATUS_OVER = 1;
+	
+	
+	/**
+	 * 打印所在位置
+	 * @var unknown
+	 */
+	public static $position = array(
+		self::TYPE_PATIENT_TEST_RECORD => array(
+				'CHECK' => 1,  // 检测页面打印
+				'RESULT' => 2  // 结果页面打印
+		),
+		
+	);
+	
+	/**
 	 * @return string the associated database table name
 	 */
 	public function tableName()
@@ -31,12 +59,9 @@ class RecordPrintLog extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('record_id, operator_id, create_time', 'required'),
-			array('type, status', 'numerical', 'integerOnly'=>true),
-			array('record_id, operator_id, create_time', 'length', 'max'=>10),
-			array('extra', 'length', 'max'=>255),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, record_id, type, operator_id, status, extra, create_time', 'safe', 'on'=>'search'),
+			array('id, record_id, type, operator_id, status, position, create_time, print_time', 'safe'),
 		);
 	}
 
@@ -65,37 +90,6 @@ class RecordPrintLog extends CActiveRecord
 			'extra' => 'Extra',
 			'create_time' => 'Create Time',
 		);
-	}
-
-	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 *
-	 * Typical usecase:
-	 * - Initialize the model fields with values from filter form.
-	 * - Execute this method to get CActiveDataProvider instance which will filter
-	 * models according to data in model fields.
-	 * - Pass data provider to CGridView, CListView or any similar widget.
-	 *
-	 * @return CActiveDataProvider the data provider that can return the models
-	 * based on the search/filter conditions.
-	 */
-	public function search()
-	{
-		// @todo Please modify the following code to remove attributes that should not be searched.
-
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('id',$this->id,true);
-		$criteria->compare('record_id',$this->record_id,true);
-		$criteria->compare('type',$this->type);
-		$criteria->compare('operator_id',$this->operator_id,true);
-		$criteria->compare('status',$this->status);
-		$criteria->compare('extra',$this->extra,true);
-		$criteria->compare('create_time',$this->create_time,true);
-
-		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
-		));
 	}
 
 	/**

@@ -38,7 +38,8 @@ class OperatorController extends FrontController
 				Yii::app()->user->setFlash('User','创建成功');
 				$this->redirect('index');
 			}else{
-				Yii::app()->user->setFlash('User','创建失败');
+				$error = array_values($model->getErrors());
+				Yii::app()->user->setFlash('User', $error[0][0]);
 			}
 		}
 		$roles = Authitem::model()->roles()->findAll();

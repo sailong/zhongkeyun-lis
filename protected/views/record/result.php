@@ -1,0 +1,45 @@
+<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table_box list_t_c">
+  
+  <tr class="bj_g">
+    <td>项目名称</td>
+    <td>代号</td>
+    <td>测值</td>
+    <td>字符测值</td>
+  </tr>
+  <tr>
+    <td>万钢打算</td>
+    <td>ALT</td>
+    <td>123</td>
+    <td>少许</td>
+  </tr>
+  <tr>
+    <td>万钢打算</td>
+    <td>ALT</td>
+    <td>123</td>
+    <td>少许</td>
+  </tr>
+  <tr>
+    <td>万钢打算</td>
+    <td>ALT</td>
+    <td>2</td>
+    <td>少许</td>
+  </tr>
+  <tr>
+    <td>万钢打算</td>
+    <td>ALT</td>
+    <td>123</td>
+    <td>少许</td>
+  </tr>
+  <tr>
+    <td>万钢打算</td>
+    <td>ALT</td>
+    <td>132</td>
+    <td>少许</td>
+  </tr>
+  <tr>
+    <td>万钢打算</td>
+    <td>&nbsp;</td>
+    <td>123</td>
+    <td>少许</td>
+  </tr>
+</table>
